@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movana — AI 기반 IP 워크플로 &amp; 번역</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B1220;
+    --bg-alt: #0E1626;
+    --panel: #131C30;
+    --panel-line: #223049;
+    --ink: #E7ECF6;
+    --ink-dim: #9AA7BD;
+    --gold: #E8A33D;
+    --gold-dim: #7A5A26;
+    --teal: #5FD9C9;
+    --serif: 'Newsreader', serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,18,32,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--panel-line);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 0;
+  }
+  .logo{
+    font-family:var(--mono); font-weight:600; font-size:18px;
+    letter-spacing:0.14em; color:var(--ink);
+  }
+  .logo span{color:var(--gold);}
+  .nav-links{display:flex; gap:32px; list-style:none;}
+  .nav-links a{
+    font-size:14px; color:var(--ink-dim); text-decoration:none;
+    transition:color .2s ease;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{color:var(--ink);}
+  .nav-cta{
+    font-family:var(--mono); font-size:13px; padding:9px 18px;
+    border:1px solid var(--gold-dim); border-radius:2px; color:var(--gold);
+    text-decoration:none; white-space:nowrap; transition:all .2s ease;
+  }
+  .nav-cta:hover{background:var(--gold); color:#0B1220; border-color:var(--gold);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:96px 0 88px;
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.18em;
+    color:var(--teal); text-transform:uppercase; margin-bottom:20px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:22px; height:1px; background:var(--teal);}
+  h1{
+    font-family:var(--serif); font-weight:500; font-size:clamp(34px,4.4vw,54px);
+    line-height:1.15; letter-spacing:-0.01em; margin-bottom:22px;
+  }
+  h1 em{font-style:italic; color:var(--gold);}
+  .hero-sub{
+    font-size:16.5px; color:var(--ink-dim); max-width:46ch; margin-bottom:34px;
+  }
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn-primary{
+    font-family:var(--mono); font-size:14px; padding:14px 24px;
+    background:var(--gold); color:#0B1220; text-decoration:none;
+    border-radius:2px; font-weight:600; transition:transform .2s ease, box-shadow .2s ease;
+    display:inline-block;
+  }
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(232,163,61,0.25);}
+  .btn-ghost{
+    font-family:var(--mono); font-size:14px; padding:14px 24px;
+    border:1px solid var(--panel-line); color:var(--ink);
+    text-decoration:none; border-radius:2px; transition:border-color .2s ease;
+    display:inline-block;
+  }
+  .btn-ghost:hover{border-color:var(--ink-dim);}
+
+  /* ---------- Signature visual: claim transform ---------- */
+  .claim-card{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:6px;
+    padding:26px 26px 22px; font-family:var(--mono); font-size:13px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+  .claim-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding-bottom:14px; margin-bottom:16px; border-bottom:1px solid var(--panel-line);
+    color:var(--ink-dim); font-size:11px; letter-spacing:0.08em;
+  }
+  .claim-dot{width:8px; height:8px; border-radius:50%; background:var(--teal); display:inline-block; margin-right:8px; animation:pulse 2.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+  .claim-row{margin-bottom:14px;}
+  .claim-label{color:var(--ink-dim); font-size:10.5px; letter-spacing:0.1em; margin-bottom:6px; text-transform:uppercase;}
+  .claim-ko{font-family:var(--serif); font-size:15px; color:var(--ink); line-height:1.55;}
+  .claim-en{color:var(--teal); font-size:13px; line-height:1.6;}
+  .type-cursor{display:inline-block; width:7px; height:14px; background:var(--teal); margin-left:2px; animation:blink 1s step-end infinite; vertical-align:-2px;}
+  @keyframes blink{50%{opacity:0;}}
+  .claim-tags{display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;}
+  .tag{
+    font-size:10.5px; padding:4px 9px; border:1px solid var(--panel-line);
+    border-radius:20px; color:var(--ink-dim);
+  }
+
+  /* ---------- Section shared ---------- */
+  section{padding:88px 0;}
+  .section-head{max-width:640px; margin-bottom:52px;}
+  .kicker{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.16em; color:var(--gold);
+    text-transform:uppercase; margin-bottom:14px;
+  }
+  h2{font-family:var(--serif); font-weight:500; font-size:clamp(26px,3vw,38px); margin-bottom:14px;}
+  .section-sub{color:var(--ink-dim); font-size:15.5px;}
+
+  /* ---------- Services ---------- */
+  .services{background:var(--bg-alt); border-top:1px solid var(--panel-line); border-bottom:1px solid var(--panel-line);}
+  .service-grid{display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--panel-line); border:1px solid var(--panel-line); border-radius:8px; overflow:hidden;}
+  .service-card{background:var(--bg-alt); padding:38px; position:relative;}
+  .service-mark{font-family:var(--mono); font-size:11px; color:var(--ink-dim); letter-spacing:0.1em; margin-bottom:20px;}
+  .service-card h3{font-family:var(--serif); font-size:23px; font-weight:500; margin-bottom:14px;}
+  .service-card p{color:var(--ink-dim); font-size:14.5px; margin-bottom:18px;}
+  .service-list{list-style:none;}
+  .service-list li{
+    font-size:14px; color:var(--ink); padding:9px 0; border-top:1px solid var(--panel-line);
+    display:flex; gap:10px;
+  }
+  .service-list li:first-child{border-top:none;}
+  .service-list li::before{content:'—'; color:var(--gold); flex-shrink:0;}
+
+  /* ---------- Process (real sequence, numbered) ---------- */
+  .process-list{border-top:1px solid var(--panel-line);}
+  .process-row{
+    display:grid; grid-template-columns:70px 1fr 1.4fr; gap:24px;
+    padding:26px 0; border-bottom:1px solid var(--panel-line); align-items:start;
+  }
+  .process-num{font-family:var(--mono); font-size:14px; color:var(--gold);}
+  .process-row h4{font-family:var(--serif); font-size:19px; font-weight:500;}
+  .process-row p{color:var(--ink-dim); font-size:14.5px;}
+
+  /* ---------- Why ---------- */
+  .why{background:var(--bg-alt); border-top:1px solid var(--panel-line); border-bottom:1px solid var(--panel-line);}
+  .why-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:28px;}
+  .why-item{border-top:2px solid var(--gold); padding-top:16px;}
+  .why-item h4{font-family:var(--serif); font-size:17px; font-weight:500; margin-bottom:8px;}
+  .why-item p{color:var(--ink-dim); font-size:13.8px;}
+
+  /* ---------- Contact ---------- */
+  .contact{display:grid; grid-template-columns:1fr 1fr; gap:56px;}
+  .contact-info p{color:var(--ink-dim); font-size:15px; margin-bottom:24px; max-width:42ch;}
+  .contact-detail{font-family:var(--mono); font-size:14px; color:var(--ink); margin-bottom:10px;}
+  .contact-detail span{color:var(--ink-dim);}
+  form{background:var(--panel); border:1px solid var(--panel-line); border-radius:8px; padding:30px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:var(--ink-dim); margin-bottom:7px; text-transform:uppercase;}
+  .field input, .field textarea{
+    width:100%; background:var(--bg); border:1px solid var(--panel-line); border-radius:4px;
+    padding:11px 12px; color:var(--ink); font-family:var(--sans); font-size:14px;
+  }
+  .field input:focus, .field textarea:focus{outline:2px solid var(--teal); outline-offset:1px; border-color:var(--teal);}
+  .field textarea{resize:vertical; min-height:90px;}
+  .submit-btn{
+    width:100%; font-family:var(--mono); font-size:14px; padding:13px; background:var(--gold);
+    color:#0B1220; font-weight:600; border:none; border-radius:4px; cursor:pointer; transition:opacity .2s ease;
+  }
+  .submit-btn:hover{opacity:0.88;}
+
+  footer{border-top:1px solid var(--panel-line); padding:32px 0; color:var(--ink-dim); font-size:13px;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;}
+
+  section[id]{scroll-margin-top: 84px;}
+
+  /* ---------- Reveal on scroll ---------- */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  @media (max-width: 880px){
+    .hero{grid-template-columns:1fr; padding:56px 0 64px;}
+    .service-grid{grid-template-columns:1fr;}
+    .why-grid{grid-template-columns:1fr 1fr;}
+    .contact{grid-template-columns:1fr;}
+    .process-row{grid-template-columns:44px 1fr; }
+    .process-row p{grid-column:1 / -1;}
+    .nav-links{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">MOVANA<span>.</span></div>
+    <ul class="nav-links">
+      <li><a href="#services">서비스</a></li>
+      <li><a href="#why">회사소개</a></li>
+    </ul>
+    <a class="nav-cta" href="#contact">상담 신청</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap" style="grid-template-columns:1fr; max-width:720px;">
+    <div class="reveal in">
+      <div class="eyebrow">AI-driven IP &amp; Language Workflow</div>
+      <h1>발명의 언어를, <em>세계</em>의 언어로.</h1>
+      <p class="hero-sub">Movana는 AI 기반 워크플로로 발명 아이디어의 특허성 검토를 가속하고, 정밀 번역으로 명세서와 출원 서류가 국경을 넘도록 돕습니다.</p>
+      <div class="hero-ctas">
+        <a class="btn-primary" href="#contact">상담 신청하기</a>
+        <a class="btn-ghost" href="#services">서비스 살펴보기</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="kicker">Services</div>
+        <h2>두 가지 축, 하나의 워크플로</h2>
+        <p class="section-sub">지식재산이 만들어지는 과정과, 그것이 국경을 넘는 과정. Movana는 이 두 축을 하나의 파이프라인으로 연결합니다.</p>
+      </div>
+      <div class="service-grid reveal">
+        <div class="service-card">
+          <div class="service-mark">01 — IP WORKFLOW</div>
+          <h3>AI 기반 IP 워크플로 컨설팅</h3>
+          <p>발명신고서 작성부터 특허성 판단까지, 연구자와 발명자의 시간을 아끼는 AI 파이프라인을 설계합니다.</p>
+          <ul class="service-list">
+            <li>선행기술 조사 자동화 및 유사 특허 클러스터링</li>
+            <li>발명신고서(IDF) 초안 생성 지원</li>
+            <li>명세서·청구항 초안 검토 및 보강 제안</li>
+            <li>내부 IP 관리 시스템 연동 리포트</li>
+          </ul>
+        </div>
+        <div class="service-card">
+          <div class="service-mark">02 — TRANSLATION</div>
+          <h3>전문 번역 서비스</h3>
+          <p>특허·기술 문서 특유의 정확성을 지키면서, AI와 전문 검수자가 함께 다국어 번역 품질을 관리합니다.</p>
+          <ul class="service-list">
+            <li>특허 명세서·청구항 다국어 번역</li>
+            <li>용어집(Glossary) 및 번역 메모리 구축·관리</li>
+            <li>PCT·해외출원 서류 현지화</li>
+            <li>기술 논문 및 R&amp;D 문서 번역</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why" id="why">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="kicker">Why Movana</div>
+        <h2>연구소 현장에서 시작된 워크플로</h2>
+      </div>
+      <div class="why-grid reveal">
+        <div class="why-item">
+          <h4>도메인 전문성</h4>
+          <p>AI 연구조직의 발명신고·특허 실무 경험을 바탕으로 설계된 프로세스입니다.</p>
+        </div>
+        <div class="why-item">
+          <h4>AI 파이프라인</h4>
+          <p>반복 작업은 자동화하고, 판단이 필요한 지점에만 전문가가 개입합니다.</p>
+        </div>
+        <div class="why-item">
+          <h4>언어 품질 관리</h4>
+          <p>용어집과 번역 메모리로 문서 간, 국가 간 일관성을 지킵니다.</p>
+        </div>
+        <div class="why-item">
+          <h4>빠른 턴어라운드</h4>
+          <p>출원 일정에 맞춘 단계별 산출물로 지연 없이 진행합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="translation-sample">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="kicker">Sample Output</div>
+        <h2>실제 번역 결과 예시</h2>
+        <p class="section-sub">특허 명세서 단락과 청구항을 각각 발췌해, Movana의 번역 파이프라인이 산출하는 결과물을 그대로 보여드립니다.</p>
+      </div>
+      <div class="claim-card reveal">
+        <div class="claim-head"><span><span class="claim-dot"></span>SPEC_014.excerpt</span><span>KO → EN</span></div>
+        <div class="claim-row">
+          <div class="claim-label">원문 · 명세서 발췌</div>
+          <div class="claim-ko">도 4를 참조하면, 본 발명의 일 실시예에 따른 생물학적 특성 관련 유전자 선별 및 예측 방법은, 암 조직의 복수의 단일세포 유전자 발현 패턴을 포함하는 단일세포 유전자 발현 프로파일을 획득하는 단계(S101)와, 획득된 단일세포 유전자 발현 프로파일을 네트워크 분석으로 공동 발현 특성 별 관련된 복수의 유전자를 클러스터링한 유전자 상관관계 정보를 생성하는 단계(S103)와, 제1 암을 타겟으로 할 때, 제1 암에 대한 유전자 별 유전자 중요도를 제1 머신러닝 모델을 통해 결정하는 단계(S105)와, 타겟에 대해 결정된 중요 유전자를 기준으로 타겟의 태스크를 위한 제2 학습 데이터를 생성하는 단계(S107)와, 타겟에 대해 상기 결정된 유전자에 대한 정보를 포함하는 제2 학습 데이터를 통해 타겟의 태스크를 수행하는 단계(S109) 및 수행된 태스크에 따라서 결정된 유전자 중 적어도 일부의 유전자를 재결정하고, 재결정된 유전자에 대한 정보를 기초로 타겟을 예측하는 태스크를 다시 수행하는 단계(S111)를 포함할 수 있다.</div>
+        </div>
+        <div class="claim-row">
+          <div class="claim-label">번역 · Specification</div>
+          <div class="claim-en">Referring to FIG. 4, the method for selecting and predicting genes related to biological characteristics according to one embodiment of the present disclosure includes: obtaining single-cell gene expression profiles containing gene expression patterns of multiple single cells from cancer tissues S101; generating gene correlation information by clustering a plurality of genes associated with co-expression characteristics through network analysis of the obtained single-cell gene expression profile S103; determining gene importance for each gene in the first cancer as a target using a first machine learning model S105; generating second training data for the task of the target based on the determined important genes for the target S107; performing the task of the target using the second training data, which includes information about the determined genes S109; and re-determining at least some of the genes determined from the performed task, and re-performing the task to predict the target based on information about the re-determined genes S111.<span class="type-cursor"></span></div>
+        </div>
+        <div class="claim-tags">
+          <span class="tag">용어집 일치 98%</span>
+          <span class="tag">선행기술 검토 완료</span>
+          <span class="tag">PCT 서식 준수</span>
+        </div>
+      </div>
+
+      <div class="claim-card reveal" style="margin-top:22px;">
+        <div class="claim-head"><span><span class="claim-dot"></span>CLAIM_005.dependent</span><span>KO → EN</span></div>
+        <div class="claim-row">
+          <div class="claim-label">원문 · 청구항 5</div>
+          <div class="claim-ko">제5 항에 있어서,<br>상기 유전자 상관관계 정보를 생성하는 단계는,<br>상기 단일세포 유전자 발현 프로파일을 기초로 유전자 간 상관관계에 대한 상관계수를 산출하는 단계와,<br>상기 산출된 유전자 간 상관계수를 기반으로 가중치가 부여된 네트워크를 생성하는 단계와,<br>상기 생성된 네트워크에서의 노드들을 클러스터링 알고리즘을 기초로 그룹화하여, 공동 발현하는 유전자들을 유전자 모듈로 분류하는 단계를 포함하는 생물학적 특성 관련 유전자 선별 및 예측 방법.</div>
+        </div>
+        <div class="claim-row">
+          <div class="claim-label">번역 · Claim 5</div>
+          <div class="claim-en">The method of claim 5, wherein generating the gene correlation information comprises:<br>producing correlation coefficients for gene pairs based on single-cell gene expression profiles;<br>creating a weighted network based on the produced correlation coefficients;<br>and classifying co-expressed genes into gene modules by grouping nodes in the created network using clustering algorithms.<span class="type-cursor"></span></div>
+        </div>
+        <div class="claim-tags">
+          <span class="tag">청구항 종속관계 유지</span>
+          <span class="tag">용어 일관성 검수</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact wrap" id="contact">
+    <div class="contact-info reveal">
+      <div class="kicker">Contact</div>
+      <h2>프로젝트를 시작해 보세요</h2>
+      <p>발명 아이디어 한 건부터 대규모 해외 출원 프로젝트까지, 규모에 맞춰 함께합니다. 간단한 정보만 남겨 주시면 1~2일 내로 연락드립니다.</p>
+      <div class="contact-detail"><span>Email</span> &nbsp;all@movana.co.kr</div>
+      <div class="contact-detail"><span>회사</span> &nbsp;주식회사 모바나 (MOVANA Co., Ltd)</div>
+    </div>
+    <form action="mailto:all@movana.co.kr" method="post" enctype="text/plain" class="reveal">
+      <div class="field">
+        <label for="name">이름 / 회사명</label>
+        <input id="name" name="name" type="text" required>
+      </div>
+      <div class="field">
+        <label for="email">이메일</label>
+        <input id="email" name="email" type="email" required>
+      </div>
+      <div class="field">
+        <label for="message">문의 내용</label>
+        <textarea id="message" name="message" placeholder="어떤 문제를 해결하고 싶으신가요?"></textarea>
+      </div>
+      <button class="submit-btn" type="submit">문의 보내기</button>
+    </form>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>© 2026 MOVANA Co., Ltd. All rights reserved.</span>
+  <span>AI 기반 IP 워크플로 &amp; 번역 컨설팅</span>
+</footer>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.15});
+  revealEls.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
